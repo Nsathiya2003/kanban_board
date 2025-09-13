@@ -12,9 +12,11 @@ const Board: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const tasks = useSelector((state: RootState) => state.tasks.tasks);
 
-  const [filter, setFilter] = useState("all");
-  const [search, setSearch] = useState("");
-  const [selectedDate, setSelectedDate] = useState("");
+  // Filters & Sorting
+  const [filter, setFilter] = useState("all"); // which tasks to show
+  const [search, setSearch] = useState(""); // search by title
+  const [selectedDate, setSelectedDate] = useState(""); // filter by due date
+  const [sortBy, setSortBy] = useState("none"); // how tasks are ordered
 
   type ColumnKeys = "column-1" | "column-2" | "column-3";
   const columns: Record<ColumnKeys, { id: string; title: string }> = {
@@ -50,6 +52,7 @@ const Board: React.FC = () => {
   return (
     <DndContext collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
       <div className="min-h-screen p-6 bg-blue-50 dark:bg-gray-900">
+        {/* Header */}
         <Header
           filter={filter}
           setFilter={setFilter}
@@ -57,33 +60,58 @@ const Board: React.FC = () => {
           setSearch={setSearch}
           selectedDate={selectedDate}
           setSelectedDate={setSelectedDate}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
         />
+
+        {/* Columns */}
         <div className="flex flex-col md:flex-row gap-6 mt-6">
           <div className="flex flex-1 gap-6 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
             {columnOrder.map((colId) => {
               const column = columns[colId];
-              const columnTasks = tasks
-                .filter((t) => t.columnId === colId)
-                .filter((t) =>
-                  filter === "high" ? t.priority === "high" :
-                    filter === "duedate" ? t.dueDate === selectedDate : true
-                )
-                .filter((t) => t.title.toLowerCase().includes(search.toLowerCase()));
 
-              const taskIds = columnTasks.map((t) => t.id);
+              // Step 1: Filter tasks
+              let filteredTasks = tasks.filter((t) => t.columnId === colId);
+
+              if (filter === "high") {
+                filteredTasks = filteredTasks.filter((t) => t.priority === "high");
+              } else if (filter === "duedate") {
+                filteredTasks = filteredTasks.filter((t) => t.dueDate === selectedDate);
+              }
+
+              filteredTasks = filteredTasks.filter((t) =>
+                t.title.toLowerCase().includes(search.toLowerCase())
+              );
+
+              // Step 2: Sort tasks
+              let sortedTasks = [...filteredTasks];
+              if (sortBy === "priority") {
+                const priorityOrder: Record<string, number> = { high: 1, medium: 2, low: 3 };
+                sortedTasks.sort(
+                  (a, b) => (priorityOrder[a.priority] ?? 999) - (priorityOrder[b.priority] ?? 999)
+                );
+              } else if (sortBy === "duedate") {
+                sortedTasks.sort(
+                  (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+                );
+              }
+
+              const taskIds = sortedTasks.map((t) => t.id);
 
               return (
                 <Column
                   key={column.id}
                   id={column.id}
                   title={column.title}
-                  tasks={columnTasks}
+                  tasks={sortedTasks}
                   taskIds={taskIds}
                   onDeleteTask={handleDelete}
                 />
               );
             })}
           </div>
+
+          {/* Add Task Modal */}
           <AddTaskModal defaultColumnId="column-1" />
         </div>
       </div>

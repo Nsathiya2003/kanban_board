@@ -5,7 +5,7 @@ A responsive Kanban Board built with React, Redux Toolkit, and TypeScript, featu
 
 Getting Started (how to run the project)
 1. Clone the repository
-git clone https://github.com/<your-username>/kanban-board.git
+git clone https://github.com/Nsathiya2003/kanban_board
 cd kanban-board
 2. Install dependencies
 npm install

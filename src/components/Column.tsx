@@ -30,9 +30,8 @@ const Column: React.FC<ColumnProps> = ({ id, title, taskIds, tasks, onDeleteTask
   return (
     <div
       ref={setNodeRef}
-      className={`flex-shrink-0 w-full md:w-80 rounded-2xl shadow-lg p-4 min-h-[500px] bg-gray-50 dark:bg-gray-800 ${
-        over ? "bg-blue-50 dark:bg-blue-900" : ""
-      }`}
+      className={`flex-shrink-0 w-full md:w-80 rounded-2xl shadow-lg p-4 min-h-[500px] bg-gray-50 dark:bg-gray-800 ${over ? "bg-blue-50 dark:bg-blue-900" : ""
+        }`}
     >
       <div
         className={`h-12 rounded-xl mb-4 flex items-center justify-center font-bold shadow-md ${getHeaderGradient(
@@ -54,4 +53,3 @@ const Column: React.FC<ColumnProps> = ({ id, title, taskIds, tasks, onDeleteTask
 };
 
 export default Column;
- 
